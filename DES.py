@@ -1,31 +1,27 @@
-info = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        'A', 'B', 'C', 'D', 'E', 'F']
+def BinaryToDecimal(Num):
+    return str(int(Num, 2))
 
 
-def binaryToDecimal(n):  # str -> str
-    return str(int(n, 2))
+def DecimalToBinary(Num):
+    return bin(Num).replace('0b', '')
 
 
-def decimalToBinary(n):  # int -> str
-    return bin(n).replace("0b", "")
-
-
-def expand(b32):
-    ans = []
+def Expand(Right):
+    Ans = list()
     i = -1
     while i < 32:
-        ans.append(b32[i])
-        if len(ans) % 6 == 0:
+        Ans.append(Right[i])
+        if len(Ans) % 6 == 0:
             i -= 2
         i += 1
-    ans.append(b32[0])
-    return ans
+    Ans.append(Right[0])
+    return Ans
 
 
-shift_table = [1, 1, 2, 2, 2, 2, 2, 2,
-               1, 2, 2, 2, 2, 2, 2, 1]
+ShiftTable = [1, 1, 2, 2, 2, 2, 2, 2,
+              1, 2, 2, 2, 2, 2, 2, 1]
 
-sbox = [[[14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7],
+SBox = [[[14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7],
          [0, 15, 7, 4, 14, 2, 13, 1, 10, 6, 12, 11, 9, 5, 3, 8],
          [4, 1, 14, 8, 13, 6, 2, 11, 15, 12, 9, 7, 3, 10, 5, 0],
          [15, 12, 8, 2, 4, 9, 1, 7, 5, 11, 3, 14, 10, 0, 6, 13]],
@@ -65,55 +61,57 @@ sbox = [[[14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7],
          [7, 11, 4, 1, 9, 12, 14, 2, 0, 6, 10, 13, 15, 3, 5, 8],
          [2, 1, 14, 7, 4, 10, 8, 13, 15, 12, 9, 0, 3, 5, 6, 11]]]
 
-# Table of Position of 64 bits at initial level: Initial Permutation Table
-initial_perm = [57, 49, 41, 33, 25, 17, 9, 1,
-                59, 51, 43, 35, 27, 19, 11, 3,
-                61, 53, 45, 37, 29, 21, 13, 5,
-                63, 55, 47, 39, 31, 23, 15, 7,
-                56, 48, 40, 32, 24, 16, 8, 0,
-                58, 50, 42, 34, 26, 18, 10, 2,
-                60, 52, 44, 36, 28, 20, 12, 4,
-                62, 54, 46, 38, 30, 22, 14, 6]
 
-exp_d = [31, 0, 1, 2, 3, 4,
-         3, 4, 5, 6, 7, 8,
-         7, 8, 9, 10, 11, 12,
-         11, 12, 13, 14, 15, 16,
-         15, 16, 17, 18, 19, 20,
-         19, 20, 21, 22, 23, 24,
-         23, 24, 25, 26, 27, 28,
-         27, 28, 29, 30, 31, 0, ]
+InitialPermutation = [57, 49, 41, 33, 25, 17, 9, 1,
+                      59, 51, 43, 35, 27, 19, 11, 3,
+                      61, 53, 45, 37, 29, 21, 13, 5,
+                      63, 55, 47, 39, 31, 23, 15, 7,
+                      56, 48, 40, 32, 24, 16, 8, 0,
+                      58, 50, 42, 34, 26, 18, 10, 2,
+                      60, 52, 44, 36, 28, 20, 12, 4,
+                      62, 54, 46, 38, 30, 22, 14, 6]
 
 
-def groupxor(a, b):
-    res = []
+ExpandTable = [31, 0, 1, 2, 3, 4,
+               3, 4, 5, 6, 7, 8,
+               7, 8, 9, 10, 11, 12,
+               11, 12, 13, 14, 15, 16,
+               15, 16, 17, 18, 19, 20,
+               19, 20, 21, 22, 23, 24,
+               23, 24, 25, 26, 27, 28,
+               27, 28, 29, 30, 31, 0, ]
+
+
+def GroupXOR(ExpandedR, Key):
+    Ans = []
     for i in range(48):
-        res.append(a[i] ^ b[i])
-    return res
+        Ans.append(ExpandedR[i] ^ Key[i])
+    return Ans
 
 
-def permute(k, arr, size):
-    permutation = ""
-    for i in range(size):
-        permutation = permutation + k[arr[i] - 1]
-    return permutation
+# def permute(k, arr, size):
+#     permutation = str()
+#     for i in range(size):
+#         permutation = permutation + k[arr[i] - 1]
+#     return permutation
 
 
-def shift_left(k, nth_shifts):
-    s = ""
-    for i in range(nth_shifts):
-        for j in range(1, len(k)):
-            s = s + k[j]
-        s = s + k[0]
-        k = s
-        s = ""
-    return k
+def CircularShiftLeft(Key, Times):
+    Temp = str()
+    for i in range(Times):
+        for j in range(1, len(Key)):
+            Temp = Temp + Key[j]
+        Temp = Temp + Key[0]
+        Key = Temp
+        Temp = str()
+    return Key
 
 
-plain = input()
-plainblock = []
-for i in range(8, len(plain), 8):
-  plainblock.append(plain[i-8:i])
-if len(plainblock) * 8 != len(plain):
-  plainblock.append(plain[-(len(plain) % 8):])
-print(plainblock)
+if __name__ == '__main__':
+    plain = input()
+    plainblock = []
+    for i in range(8, len(plain), 8):
+        plainblock.append(plain[i-8:i])
+    if len(plainblock) * 8 != len(plain):
+        plainblock.append(plain[-(len(plain) % 8):])
+    print(plainblock)

@@ -1,14 +1,15 @@
 from math import sqrt
 from numpy import gcd
+from time import time
 
 
 def PrimalityCheck(Num):
     Num = int(Num)
     Sqr = int(sqrt(Num)) + 1
-    if Num < 2:
+    if Num <= 2:
         return False
     else:
-        for i in range(2, Sqr):
+        for i in range(3, Sqr):
             if Num % i == 0:
                 return False
         return True
@@ -28,15 +29,15 @@ def APowerBModN(A, B, N):
 
 def GenerateKey():
     P = int(input('Enter A Prime Number As P: '))
-    while PrimalityCheck(P) == False or P =='':
+    while not PrimalityCheck(P) or P == '':
         P = int(input('Enter A Prime Number As P: '))
     Q = int(input('Enter A Prime Number As Q: '))
-    while PrimalityCheck(Q) == False or Q =='':
+    while not PrimalityCheck(Q) or Q == '':
         Q = int(input('Enter A Prime Number As Q: '))
     N = P * Q
     Phi = (P - 1) * (Q - 1)
     E = int(input('Enter E (1 < E < {}): '.format(Phi)))
-    while 1 >= E or E >= Phi or gcd(Phi, E) != 1 or E =='':
+    while 1 >= E or E >= Phi or gcd(Phi, E) != 1 or E == '':
         E = int(input('Enter E (1 < E < {}): ').format(Phi))
     for i in range(1, Phi):
         Temp = (Phi * i) + 1
@@ -48,40 +49,40 @@ def GenerateKey():
     return PublicKey, PrivateKey
 
 
-def Encrypt(PlainText, PublicKey):
-    PlainText = PlainText.encode()
+def Encrypt(Plain, Public):
+    PlainT = Plain.encode()
     PlainBlock = list()
     CypherBlock = list()
 
-    for P in range(0, len(PlainText), 2):
-        if P + 1 < len(PlainText):
-            if len(str(PlainText[P])) == 3 and len(str(PlainText[P + 1])) == 3:
-                PlainBlock.append(str(PlainText[P]) + str(PlainText[P + 1]))
-            elif len(str(PlainText[P])) == 3 and len(str(PlainText[P + 1])) != 3:
-                PlainBlock.append(str(PlainText[P]) + str(PlainText[P + 1] * 10))
-            elif len(str(PlainText[P])) != 3 and len(str(PlainText[P + 1])) == 3:
-                PlainBlock.append(str(PlainText[P] * 10) + str(PlainText[P + 1]))
+    for P in range(0, len(PlainT), 2):
+        if P + 1 < len(PlainT):
+            if len(str(PlainT[P])) == 3 and len(str(PlainT[P + 1])) == 3:
+                PlainBlock.append(str(PlainT[P]) + str(PlainT[P + 1]))
+            elif len(str(PlainT[P])) == 3 and len(str(PlainT[P + 1])) != 3:
+                PlainBlock.append(str(PlainT[P]) + str(PlainT[P + 1] * 10))
+            elif len(str(PlainT[P])) != 3 and len(str(PlainT[P + 1])) == 3:
+                PlainBlock.append(str(PlainT[P] * 10) + str(PlainT[P + 1]))
             else:
-                PlainBlock.append(str(PlainText[P] * 10) + str(PlainText[P + 1] * 10))
+                PlainBlock.append(str(PlainT[P] * 10) + str(PlainT[P + 1] * 10))
         else:
-            if len(str(PlainText[P])) == 3:
-                PlainBlock.append(str(PlainText[P]))
+            if len(str(PlainT[P])) == 3:
+                PlainBlock.append(str(PlainT[P]))
             else:
-                PlainBlock.append(str(PlainText[P] * 10))
+                PlainBlock.append(str(PlainT[P] * 10))
 
     for PB in PlainBlock:
-        CypherBlock.append(str((int(PB) ** PublicKey[0]) % PublicKey[1]))
+        CypherBlock.append(str(APowerBModN(int(PB), Public[0], Public[1])))
 
     return CypherBlock
 
 
-def Decrypt(CypherBlock, PrivateKey):
+def Decrypt(Cypher, Private):
     DecryptionBlock = list()
     ASCIIBlock = list()
     Received = str()
 
-    for CB in CypherBlock:
-        DecryptionBlock.append(str(APowerBModN(int(CB), PrivateKey[0], PrivateKey[1])))
+    for CB in Cypher:
+        DecryptionBlock.append(str(APowerBModN(int(CB), Private[0], Private[1])))
 
     for DB in DecryptionBlock:
         if len(DB) != 3:
@@ -112,3 +113,14 @@ if __name__ == '__main__':
     print('Encrypted Plain Text: {}'.format(CypherText))
     DecryptedText = Decrypt(CypherText, PrivateKey)
     print('Decrypted Cypher Text: {}'.format(DecryptedText))
+    # p = ['Mohammad Ali Khodayari', '40032715', 'makhodayari99@gmail.com', 'zxcvbnm123654', 'q7w8e9r6t5y4u1i2o3']
+    # t1 = time()
+    # for j in range(5):
+    #     c = list()
+    #     e = list()
+    #     for i in range(5):
+    #         c.append(Encrypt(p[i], PublicKey))
+    #         e.append(Decrypt(c[i], PrivateKey))
+    # t2 = time()
+    # t3 = (((t2 - t1) / 5) * 1000)
+    # print(t3)
